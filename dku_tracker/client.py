@@ -27,8 +27,24 @@ def get_host() -> str:
     
     global _HOST
     if _HOST is None:
-        _HOST = "https://dss-70337748-dc36eeee-dku.us-east-1.app.dataiku.io"
+        client = get_client()
+        _HOST = client.get_general_settings().settings['studioExternalUrl']
     return _HOST
+
+
+def set_host(host: str) -> None:
+    """
+    Set the DSS instance host URL.
+
+    Parameters
+    ----------
+    host : str
+        The full base URL of the DSS instance
+        (e.g. "https://my-instance.dataiku.io").
+    """
+    
+    global _HOST
+    _HOST = host
 
 
 def get_client() -> dataikuapi.DSSClient:
