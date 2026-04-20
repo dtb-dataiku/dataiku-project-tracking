@@ -13,7 +13,6 @@ from .projects import (
     get_project_metadata,
     get_project_contributors
 )
-from .datasets import get_project_datasets
 from .artifacts import (
     get_project_agents,
     get_project_api_services,
@@ -21,3 +20,4 @@ from .artifacts import (
     get_project_models,
     get_project_webapps
 )
+from .datasets import get_project_datasets
