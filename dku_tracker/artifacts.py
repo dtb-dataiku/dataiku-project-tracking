@@ -36,6 +36,7 @@ def get_project_dashboards(project_key: str) -> list[dict[str, Any]]:
             "project_key": project_key,
             "dashboard_id": dashboard.get("id", ""),
             "name": dashboard.get("name", ""),
+            "tags": dashboard.get("tags", []),
             "listed": dashboard.get("listed", False)
         })
 
@@ -69,7 +70,8 @@ def get_project_webapps(project_key: str) -> list[dict[str, Any]]:
             "project_key": project_key,
             "webapp_id": webapp.get("id", ""),
             "name": webapp.get("name", ""),
-            "type": webapp.get("type", "")
+            "type": webapp.get("type", ""),
+            "tags": webapp.get("tags", [])
         })
  
     return results
@@ -110,7 +112,8 @@ def get_project_api_services(project_key: str) -> list[dict[str, Any]]:
                 "api_service_name": api_service_details.get('name', ''),
                 "endpoint_id": endpoint.get('id', ''),
                 "endpoint_type": endpoint.get('type', ''),
-                "endpoint_model_id": endpoint.get('modelRef', '')
+                "endpoint_model_id": endpoint.get('modelRef', ''),
+                "tags": endpoint.get('tags', [])
             })
 
     return results
@@ -175,7 +178,8 @@ def get_project_models(project_key: str) -> list[dict[str, Any]]:
             "prediction_type": prediction_type,
             "target_variable": target_variable,
             "algorithm": algorithm,
-            "trained_on": trained_on
+            "trained_on": trained_on,
+            "tags": saved_model.get('tags', [])
         })
     
     return results
@@ -208,7 +212,8 @@ def get_project_agents(project_key: str) -> list[dict[str, Any]]:
             "project_key": project_key,
             "agent_id": agent.get("id", ""),
             "name": agent.get("name", ""),
-            "type": agent.get("type", "")
+            "type": agent.get("type", ""),
+            "tags": agent.get("tags", [])
         })
  
     return results

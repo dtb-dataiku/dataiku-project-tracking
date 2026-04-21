@@ -49,7 +49,7 @@ def get_project_metadata(project_key: str) -> dict[str, Any]:
     project_folder = ' > '.join(project_folders)
     
     # Get project timeline
-    last_modified_dt = timeline.get('lastModifiedOn', None)
+    last_modified_dt = timeline.get('lastModifiedOn', 0)
 
     return {
         "project_key": project_key,
@@ -61,13 +61,13 @@ def get_project_metadata(project_key: str) -> dict[str, Any]:
         "status": settings.get("projectStatus", ""),
         "folder": project_folder,
         "created_by": creation_tag.get("lastModifiedBy", {}).get("login", ""),
-        "created_on": creation_tag.get("lastModifiedOn", None),
+        "created_on": creation_tag.get("lastModifiedOn", 0),
         "last_modified_on": last_modified_dt,
         "exists": project_exists
     }
 
 
-def get_all_projects_metadata() -> list[dict[str, Any]]:
+def get_all_projects_metadata(ignore_tutorials=True, ignore_dku_apps=True) -> list[dict[str, Any]]:
     """
     Return core metadata for every project on the instance.
 
@@ -78,11 +78,23 @@ def get_all_projects_metadata() -> list[dict[str, Any]]:
     -------
     list of dicts — each dict matches the shape of get_project_metadata()
     """
+    
     client = get_client()
     results = []
     for project_key in client.list_project_keys():
         try:
-            results.append(get_project_metadata(project_key))
+            project = get_project(project_key)
+            
+            is_not_tutorial = True
+            if ignore_tutorials:
+                is_not_tutorial = project.get_summary().get('tutorialProject', False) != True
+                
+            is_not_app_instance = True
+            if ignore_dku_apps:
+                is_not_app_instance = project.get_summary().get('projectAppType', '') != 'APP_INSTANCE'
+            
+            if is_not_tutorial & is_not_app_instance:
+                results.append(get_project_metadata(project_key))
         except Exception as exc:
             # Log and continue so one broken project doesn't abort the sweep
             results.append({
@@ -109,6 +121,7 @@ def get_project_contributors(project_key: str) -> list[dict[str, Any]]:
     -------
     list of dicts with keys: login, display_name, last_active_on
     """
+    
     project = get_project(project_key)
 
     # Use the project timeline (audit log entries scoped to this project)

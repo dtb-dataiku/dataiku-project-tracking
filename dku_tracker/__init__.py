@@ -11,6 +11,7 @@ from .client import (
 )
 from .projects import (
     get_project_metadata,
+    get_all_projects_metadata,
     get_project_contributors
 )
 from .artifacts import (
@@ -20,4 +21,7 @@ from .artifacts import (
     get_project_models,
     get_project_webapps
 )
-from .datasets import get_project_datasets
+from .datasets import (
+    get_project_datasets,
+    get_project_folders
+)
