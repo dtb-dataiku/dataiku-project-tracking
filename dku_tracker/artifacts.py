@@ -3,9 +3,7 @@ artifacts.py — Project artifacts like dashboards, models, agents, APIs, and we
 """
 
 from __future__ import annotations
-
 from typing import Any
-
 from .client import get_project
 
 
@@ -138,6 +136,8 @@ def get_project_models(project_key: str) -> list[dict[str, Any]]:
         active_version_id, algorithm, tags
     """
     
+    computer_vision_prediction_types = ['DEEP_HUB_IMAGE_CLASSIFICATION', 'DEEP_HUB_IMAGE_OBJECT_DETECTION']
+    
     project = get_project(project_key)
     try:
         saved_models = project.list_saved_models()
@@ -148,39 +148,97 @@ def get_project_models(project_key: str) -> list[dict[str, Any]]:
     
     for saved_model in saved_models:
         sm = project.get_saved_model(saved_model['id'])
-        active_version_id = sm.get_active_version().get('id')
+        
+        has_versions = False
+        if sm.list_versions():
+            has_versions = True
+            active_version_id = sm.get_active_version().get('id')
         
         saved_model_type = saved_model.get('type', '')
         prediction_type = saved_model.get('predictionType', '')
-        
-        computer_vision_prediction_types = ['DEEP_HUB_IMAGE_CLASSIFICATION', 'DEEP_HUB_IMAGE_OBJECT_DETECTION']
         
         target_variable, algorithm = '', ''
         
         if prediction_type in computer_vision_prediction_types:
             target_variable = sm.get_settings().settings.get('miniTask', {}).get('targetVariable', '')
-            trained_on = sm.get_active_version().get('trainDate', 0)
-        else:
-            active_version_details = sm.get_version_details(active_version_id).details
-
-            if saved_model_type != 'CLUSTERING':
-                target_variable = active_version_details.get('coreParams', {}).get('target_variable', '')
             
-            algorithm = active_version_details.get('modeling', {}).get('algorithm', '')
-            trained_on = active_version_details.get('trainInfo', {}).get('endTime', 0)
+            trained_on = 0
+            if has_versions:
+                trained_on = sm.get_active_version().get('trainDate', 0)
+        else:
+            if has_versions:
+                active_version_details = sm.get_version_details(active_version_id).details
 
+                if saved_model_type != 'CLUSTERING':
+                    target_variable = active_version_details.get('coreParams', {}).get('target_variable', '')
+
+                algorithm = active_version_details.get('modeling', {}).get('algorithm', '')
+                trained_on = active_version_details.get('trainInfo', {}).get('endTime', 0)
+            else:
+                target_variable, algorith = '', ''
+                trained_on = 0
         
-        results.append({
-            "project_key": project_key,
-            "saved_model_id": saved_model.get('id', ''),
-            "name": saved_model.get('name', ''),
-            "type": saved_model_type,
-            "prediction_type": prediction_type,
-            "target_variable": target_variable,
-            "algorithm": algorithm,
-            "trained_on": trained_on,
-            "tags": saved_model.get('tags', [])
-        })
+        if saved_model_type != 'LLM_GENERIC_RAW':
+            results.append({
+                "project_key": project_key,
+                "saved_model_id": saved_model.get('id', ''),
+                "name": saved_model.get('name', ''),
+                "type": saved_model_type,
+                "prediction_type": prediction_type,
+                "target_variable": target_variable,
+                "algorithm": algorithm,
+                "trained_on": trained_on,
+                "tags": saved_model.get('tags', [])
+            })
+        
+#     for saved_model in saved_models:
+#         sm = project.get_saved_model(saved_model['id'])
+        
+#         try:
+#             active_version_id = sm.get_active_version().get('id')
+            
+#             saved_model_type = saved_model.get('type', '')
+#             prediction_type = saved_model.get('predictionType', '')
+
+#             computer_vision_prediction_types = ['DEEP_HUB_IMAGE_CLASSIFICATION', 'DEEP_HUB_IMAGE_OBJECT_DETECTION']
+
+#             target_variable, algorithm = '', ''
+
+#             if prediction_type in computer_vision_prediction_types:
+#                 target_variable = sm.get_settings().settings.get('miniTask', {}).get('targetVariable', '')
+#                 trained_on = sm.get_active_version().get('trainDate', 0)
+#             else:
+#                 active_version_details = sm.get_version_details(active_version_id).details
+
+#                 if saved_model_type != 'CLUSTERING':
+#                     target_variable = active_version_details.get('coreParams', {}).get('target_variable', '')
+
+#                 algorithm = active_version_details.get('modeling', {}).get('algorithm', '')
+#                 trained_on = active_version_details.get('trainInfo', {}).get('endTime', 0)
+                
+#             results.append({
+#                 "project_key": project_key,
+#                 "saved_model_id": saved_model.get('id', ''),
+#                 "name": saved_model.get('name', ''),
+#                 "type": saved_model_type,
+#                 "prediction_type": prediction_type,
+#                 "target_variable": target_variable,
+#                 "algorithm": algorithm,
+#                 "trained_on": trained_on,
+#                 "tags": saved_model.get('tags', [])
+#             })
+#         except:
+#             results.append({
+#                 "project_key": project_key,
+#                 "saved_model_id": saved_model.get('id', ''),
+#                 "name": saved_model.get('name', ''),
+#                 "type": '',
+#                 "prediction_type": '',
+#                 "target_variable": '',
+#                 "algorithm": '',
+#                 "trained_on": 0,
+#                 "tags": saved_model.get('tags', [])
+#             })
     
     return results
 

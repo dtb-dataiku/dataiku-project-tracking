@@ -3,9 +3,7 @@ projects.py — Project-level metadata and contributors.
 """
 
 from __future__ import annotations
-
 from typing import Any
-
 from .client import get_client, get_project
 
 

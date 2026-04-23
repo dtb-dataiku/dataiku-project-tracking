@@ -3,9 +3,7 @@ datasets.py — Dataset inventory for a project.
 """
 
 from __future__ import annotations
-
 from typing import Any
-
 from .client import get_project
 
 
