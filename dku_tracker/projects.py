@@ -55,7 +55,7 @@ def get_project_metadata(project_key: str) -> dict[str, Any]:
         "short_description": summary.get("shortDesc", ""),
         "description": summary.get("description", ""),
         "owner": summary.get("ownerLogin", ""),
-        "tags": sorted(summary.get("tags", []),),
+        "tags": sorted(summary.get("tags", [])),
         "status": settings.get("projectStatus", ""),
         "folder": project_folder,
         "created_by": creation_tag.get("lastModifiedBy", {}).get("login", ""),
@@ -65,7 +65,7 @@ def get_project_metadata(project_key: str) -> dict[str, Any]:
     }
 
 
-def get_all_projects_metadata(ignore_tutorials=True, ignore_dku_apps=True) -> list[dict[str, Any]]:
+def get_all_projects_metadata(ignore_tutorials: bool = True, ignore_dku_apps: bool = True) -> list[dict[str, Any]]:
     """
     Return core metadata for every project on the instance.
 

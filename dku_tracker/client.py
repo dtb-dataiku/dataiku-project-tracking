@@ -47,7 +47,7 @@ def set_host(host: str) -> None:
     _HOST = host
 
 
-def get_client() -> dataikuapi.DSSClient:
+def get_client(host: str = None, api_key: str = None) -> dataikuapi.DSSClient:
     """
     Return a module-level singleton DSSClient for the local Dataiku instance.
 
@@ -61,7 +61,10 @@ def get_client() -> dataikuapi.DSSClient:
     
     global _CLIENT
     if _CLIENT is None:
-        _CLIENT = dataiku.api_client()
+        if host is None:
+            _CLIENT = dataiku.api_client()
+        else:
+            _CLIENT = dataikuapi.DSSClient(host, api_key=api_key)
     return _CLIENT
 
 
